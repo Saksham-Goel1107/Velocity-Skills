@@ -1,45 +1,77 @@
 ---
 name: velocity-cloud-sandboxes
-description: Workflow decisions, state management, and lifecycle control for Velocity Cloud Sandboxes via MCP. Use when discovering, inspecting, creating, starting, stopping, restarting, or deleting containers.
+description: Comprehensive workflow protocols, API specifications, discrete hardware allocations, state transitions, and lifecycle management for Velocity Cloud Sandboxes.
 ---
 
 # Velocity Cloud Sandboxes Skill
 
-This skill guides AI agents through discovering, provisioning, managing, and recycling cloud container workspaces on the Velocity platform.
+Provides AI agents and developers with exact operational decision trees, full request/response schemas, state transition rules, and hardware allocations for Velocity Cloud Sandboxes.
 
-## Agent Decision Matrix
+- **Live Documentation**: https://velocity-docs.fairarena.app/#api-auth-docs
+- **Machine-Readable Spec**: https://velocity-docs.fairarena.app/llms.txt
+
+---
+
+## 1. Decision Matrix & Lifecycle Rules
 
 `mermaid
 flowchart TD
-    Start[User requests development environment] --> List[Call list_workspaces]
+    Start[User requests development environment] --> List[Call GET /api/workspaces]
     List --> CheckActive{Existing RUNNING workspace available?}
     CheckActive -- Yes --> Reuse[Reuse workspace unless isolation requested]
     CheckActive -- No --> CheckStopped{Existing STOPPED workspace matches specs?}
-    CheckStopped -- Yes --> StartWs[Call start_workspace]
-    CheckStopped -- No --> CreateWs[Call create_workspace with discrete specs]
+    CheckStopped -- Yes --> StartWs[Call PATCH /api/workspaces/id with action: start]
+    CheckStopped -- No --> CreateWs[Call POST /api/workspaces with discrete specs]
 `
 
-### Operational Rules
-1. **Reuse over Recreate**: Always call list_workspaces first. If a workspace with matching environment or project exists in RUNNING or STOPPED state, reuse or start it. Do not create duplicate containers.
-2. **Preserve State**: Prefer stop_workspace when work is paused. Never call delete_workspace unless the user explicitly requests container destruction or cleanup.
-3. **Handle State Transitions**:
-   - **STOPPED**: Call start_workspace.
-   - **CREATING / PROVISIONING**: Wait 5–15 seconds and re-check list_workspaces or get_connection_info. Do not trigger another create_workspace.
-   - **FAILED**: Inspect failure logs in get_notifications. Do not retry indefinitely. Create a clean replacement workspace if the previous container cannot be recovered.
+### Protocol Rules
+1. Reuse Over Recreate: Always call GET /api/workspaces first. If a container matching project needs exists in RUNNING or STOPPED state, reuse or resume it via PATCH /api/workspaces/id with action: start.
+2. State Hygiene: Prefer pausing containers (PATCH /api/workspaces/id with action: stop) over deletion. Never invoke DELETE /api/workspaces/id unless container destruction is explicitly requested.
+3. State Transitions:
+   - STOPPED -> Send PATCH /api/workspaces/id with action: start.
+   - CREATING / PROVISIONING -> Wait 5-10s and re-check via GET /api/workspaces/id.
+   - FAILED -> Inspect GET /api/activity-logs. Create a fresh container if unrecoverable.
 
-## Available Discrete Specifications
+---
 
-When creating a workspace, supply exact values:
-- **cpu**: 1, 2, or 4 vCPUs.
-- **memory**: 1, 2, 4, or 8 GB RAM (Daytona limit: max 8 GB per sandbox).
-- **disk**: 5 or 10 GB SSD.
-- **gpu**: 'none', 'rtx4090', 'rtx5090', 'rtx6000', 'h100', 'h200' (Requires Pro subscription plan).
-- **editor**: 'code-server' (VS Code) or 'jupyter' (JupyterLab).
+## 2. Comprehensive API Specs
 
-## Workflow Execution Steps
+### A. List Sandboxes (GET /api/workspaces)
+- Headers: Authorization: Bearer ak_live_...
+- Response: Array of workspace objects containing id, sandboxId, status, editor, isShared, shareToken.
 
-1. **Discover**: Call list_workspaces. Check for active containers.
-2. **Provision**: Call create_workspace with exact discrete parameters.
-3. **Monitor**: Verify status becomes PROVISIONING ? RUNNING.
-4. **Connect**: Call get_connection_info to retrieve preview/terminal/SSH commands.
-5. **Clean Up**: Call stop_workspace upon completing the user request to save compute billing.
+### B. Create Sandbox (POST /api/workspaces)
+- Request Body:
+`json
+{
+  repo: github.com/Saksham-Goel1107/Velocity,
+  cpu: 4,
+  memory: 8,
+  disk: 10,
+  gpu: rtx5090,
+  gpuCount: 1,
+  customName: AI Dev Sandbox,
+  autoStop: 15,
+  autoDelete: 0,
+  editor: code-server
+}
+`
+- Allowed Hardware Specifications:
+  - cpu: 1, 2, 4 vCPUs.
+  - memory: 1, 2, 4, 8 GB RAM.
+  - disk: 5, 10 GB SSD.
+  - gpu: none, rtx4090, rtx5090, rtx6000, h100, h200.
+  - gpuCount: 0 (for GPU none), or 1, 2, 3 GPUs.
+  - editor: code-server or jupyter.
+
+### C. Update & Control (PATCH /api/workspaces/id)
+- Request Body: { action: start | stop | unarchive, customName: ..., autoStop: 15, autoDelete: 0 }
+
+### D. Delete (DELETE /api/workspaces/id)
+- Permanently purges container.
+
+---
+
+## 3. Web Dashboard Link Protocol
+Never output internal preview hostnames directly. Direct developers to the live dashboard:
+https://velocity.fairarena.app/all-workflows

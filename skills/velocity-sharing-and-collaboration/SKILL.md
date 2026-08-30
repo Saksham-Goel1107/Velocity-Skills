@@ -1,22 +1,33 @@
 ---
 name: velocity-sharing-and-collaboration
-description: Security policies, sharing state rules, token regeneration, and exposure boundaries for Velocity shared workspaces.
+description: Workspace public sharing, repo sharing links, SHA-256 password protection, expiration rules, and OAuth linkage requirements.
 ---
 
 # Velocity Sharing & Collaboration Skill
 
-This skill governs workspace link sharing, public access token management, and security boundaries.
+Specifications for link sharing, repository card embedding, and password security boundaries.
 
-## Operational Actions (manage_workspace_sharing)
-- **ENABLE**: Activates public link sharing and generates/preserves a shareToken. Sets isShared: true.
-- **DISABLE**: Deactivates public access. Sets isShared: false and nullifies public sharePath.
-- **REGENERATE**: Generates a new secure UUID shareToken while keeping isShared: true. Invalidates all previously issued share links.
+- **Live Documentation**: https://velocity-docs.fairarena.app/#api-auth-docs
+- **Machine-Readable Spec**: https://velocity-docs.fairarena.app/llms.txt
 
-## Security & Privacy Rules
-1. **Workspace Access vs App Preview**:
-   - shareUrl gives full authenticated workspace privileges in the browser.
-   - previewUrl only exposes the running web application on the specified port.
-2. **Credential Protection**:
-   - **Never share SSH private keys or API tokens** over shared workspaces or chat outputs.
-3. **Pro Plan Requirement**:
-   - Sharing requires a **Pro subscription plan**. Attempting to share on a Free plan returns an authorization error.
+---
+
+## 1. Workspace Link Sharing (POST /api/workspaces/id/share)
+
+Enable or disable public link sharing:
+`json
+{
+  action: ENABLE,
+  password: OptionalSecurePassword123,
+  expirationHours: 24,
+  removePassword: false,
+  removeExpiration: false
+}
+`
+
+---
+
+## 2. Repo Share Links (/api/repo-share)
+
+- GET /api/repo-share: Returns configured shares and account OAuth linkage.
+- POST /api/repo-share: Requires linked GitHub/GitLab account. If unlinked, returns 403 OAUTH_ACCOUNT_NOT_LINKED.
