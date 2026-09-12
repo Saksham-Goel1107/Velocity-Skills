@@ -25,6 +25,7 @@ flowchart TD
 `
 
 ### Protocol Rules
+
 1. Reuse Over Recreate: Always call GET /api/workspaces first. If a container matching project needs exists in RUNNING or STOPPED state, reuse or resume it via PATCH /api/workspaces/id with action: start.
 2. State Hygiene: Prefer pausing containers (PATCH /api/workspaces/id with action: stop) over deletion. Never invoke DELETE /api/workspaces/id unless container destruction is explicitly requested.
 3. State Transitions:
@@ -37,23 +38,25 @@ flowchart TD
 ## 2. Comprehensive API Specs
 
 ### A. List Sandboxes (GET /api/workspaces)
+
 - Headers: Authorization: Bearer ak_live_...
 - Response: Array of workspace objects containing id, sandboxId, status, editor, isShared, shareToken.
 
 ### B. Create Sandbox (POST /api/workspaces)
+
 - Request Body:
-`json
+  `json
 {
-  repo: github.com/Saksham-Goel1107/Velocity,
-  cpu: 4,
-  memory: 8,
-  disk: 10,
-  gpu: rtx5090,
-  gpuCount: 1,
-  customName: AI Dev Sandbox,
-  autoStop: 15,
-  autoDelete: 0,
-  editor: code-server
+repo: github.com/Saksham-Goel1107/Velocity,
+cpu: 4,
+memory: 8,
+disk: 10,
+gpu: rtx5090,
+gpuCount: 1,
+customName: AI Dev Sandbox,
+autoStop: 15,
+autoDelete: 0,
+editor: code-server
 }
 `
 - Allowed Hardware Specifications:
@@ -65,13 +68,16 @@ flowchart TD
   - editor: code-server or jupyter.
 
 ### C. Update & Control (PATCH /api/workspaces/id)
+
 - Request Body: { action: start | stop | unarchive, customName: ..., autoStop: 15, autoDelete: 0 }
 
 ### D. Delete (DELETE /api/workspaces/id)
+
 - Permanently purges container.
 
 ---
 
 ## 3. Web Dashboard Link Protocol
+
 Never output internal preview hostnames directly. Direct developers to the live dashboard:
 https://velocity.fairarena.app/all-workflows

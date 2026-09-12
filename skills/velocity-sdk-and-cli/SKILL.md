@@ -23,23 +23,23 @@ npm install -g @fairarena/velocity-cloud-sandbox-cli
 
 ## 2. TypeScript SDK Usage
 
-`	ypescript
+` ypescript
 import { VelocityCloudSandbox } from @fairarena/velocity-cloud-sandbox;
 
 const velocity = new VelocityCloudSandbox({
-  apiKey: process.env.VELOCITY_API_KEY,
+apiKey: process.env.VELOCITY_API_KEY,
 });
 
 const sandbox = await velocity.createSandbox({
-  repo: github.com/Saksham-Goel1107/Velocity,
-  cpu: 4,
-  memoryGB: 8,
-  diskGB: 10,
-  gpu: rtx5090,
-  gpuCount: 1,
-  editor: code-server,
-  customName: AI Dev Sandbox,
-  autoStop: 15,
+repo: github.com/Saksham-Goel1107/Velocity,
+cpu: 4,
+memoryGB: 8,
+diskGB: 10,
+gpu: rtx5090,
+gpuCount: 1,
+editor: code-server,
+customName: AI Dev Sandbox,
+autoStop: 15,
 });
 
 const execResult = await sandbox.exec(pnpm install && pnpm build);
