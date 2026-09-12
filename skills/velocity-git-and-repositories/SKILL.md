@@ -8,7 +8,9 @@ description: Git version control rules, repository URL normalization, branch man
 This skill defines rules and procedures for managing Git repositories inside Velocity Cloud Sandboxes.
 
 ## Repository Parameter Format & Normalization
+
 When calling create_workspace, pass standard repository formats:
+
 - **Blank-workspace**: Creates an empty container with no initial repository cloned.
 - **GitHub / GitLab URL**: github.com/username/repository or gitlab.com/username/repository.
 - Protocol prefixes (https://, git@) are automatically normalized.
