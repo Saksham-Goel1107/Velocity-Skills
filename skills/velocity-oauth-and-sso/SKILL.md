@@ -25,23 +25,27 @@ Complete operational specifications for authenticating Custom GPTs, external AI 
 ## 2. OAuth App Management Endpoints
 
 ### A. List OAuth Apps (GET /api/oauth-apps)
+
 - Returns registered client credentials and redirect URIs.
 
 ### B. Create OAuth App (POST /api/oauth-apps)
+
 - Request Body:
-`json
+  `json
 {
-  name: <App Name>,
-  redirectUris: [
-    <Redirect URI1>,
-    <Redirect URI2>,
-  ],
-  scopes: profile email
+name: <App Name>,
+redirectUris: [
+  <Redirect URI1>,
+  <Redirect URI2>,
+],
+scopes: profile email
 }
 `
 
 ### C. Update OAuth App (PATCH /api/oauth-apps/id)
+
 - Up to 10 redirect URIs supported per client. Validated for proper URL syntax.
 
 ### D. Rotate Secret (POST /api/oauth-apps/id/rotate-secret)
+
 - Rotates clientSecret safely.
